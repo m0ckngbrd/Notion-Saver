@@ -1,0 +1,384 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Clip to Notion++</title>
+<style>
+  body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+    margin: 0; 
+    padding: 1rem; 
+    width: 420px; 
+    background: #fafafa;
+    color: #1f2937;
+  }
+  
+  .container {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e5e7eb;
+  }
+  
+  .row { margin-bottom: 1rem; }
+  
+  label { 
+    font-weight: 600; 
+    display: block; 
+    margin-bottom: 0.5rem; 
+    color: #374151;
+    font-size: 0.875rem;
+  }
+  
+  input[type=text], textarea { 
+    width: 100%; 
+    padding: 0.75rem; 
+    box-sizing: border-box; 
+    border: 1px solid #d1d5db; 
+    border-radius: 8px; 
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    background: #f9fafb;
+  }
+  
+  input[type=text]:focus, textarea:focus { 
+    outline: none;
+    border-color: #3b82f6;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  button { 
+    padding: 0.75rem 1rem; 
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8); 
+    color: white; 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  }
+  
+  button:hover { 
+    background: linear-gradient(135deg, #2563eb, #1e40af);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  button:active {
+    transform: translateY(0);
+  }
+  
+  .chips { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.5rem; 
+    margin-bottom: 0.5rem; 
+  }
+  
+  .chip { 
+    border: 1px solid #e5e7eb; 
+    border-radius: 20px; 
+    padding: 0.25rem 0.75rem; 
+    background: #f3f4f6; 
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s ease;
+  }
+  
+  .chip:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+  }
+  
+  .chip button { 
+    border: none; 
+    background: none; 
+    cursor: pointer; 
+    color: #6b7280; 
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0;
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+  }
+  
+  .chip button:hover { 
+    color: #ef4444; 
+    background: #fef2f2;
+  }
+  
+  /* Modern Combobox */
+  .combo { 
+    position: relative; 
+  }
+  
+  .combo [role="listbox"] {
+    position: absolute; 
+    z-index: 10; 
+    max-height: 200px; 
+    overflow: auto; 
+    border: 1px solid #e5e7eb; 
+    background: white; 
+    width: 100%; 
+    box-sizing: border-box; 
+    border-radius: 8px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    margin-top: 0.25rem;
+  }
+  
+  .option { 
+    padding: 0.75rem 1rem; 
+    cursor: pointer; 
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+    border-bottom: 1px solid #f3f4f6;
+  }
+  
+  .option:last-child {
+    border-bottom: none;
+  }
+  
+  .option:hover { 
+    background: #f8fafc; 
+  }
+  
+  .option[aria-selected="true"] { 
+    font-weight: 600; 
+    background: #eff6ff; 
+    color: #1d4ed8;
+  }
+  
+  .option[aria-current="true"] { 
+    background: #dbeafe; 
+    outline: 2px solid #3b82f6; 
+    outline-offset: -2px;
+  }
+  
+  .kbd { 
+    font: 0.75rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; 
+    color: #6b7280;
+  }
+  
+  .options-link { 
+    color: #3b82f6; 
+    text-decoration: underline; 
+    cursor: pointer; 
+    font-weight: 500;
+  }
+  
+  .options-link:hover { 
+    color: #1d4ed8; 
+  }
+  
+  #status { 
+    color: #6b7280; 
+    font-size: 0.875rem; 
+  }
+  
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0;
+  }
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3b82f6;
+  }
+  
+  .checkbox-container span {
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  .header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .header h1 {
+    font-size: 1.25rem;
+    margin: 0;
+    color: #111827;
+    font-weight: 700;
+  }
+  
+  .image-preview {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.75rem;
+    background: #f9fafb;
+    margin-top: 0.5rem;
+  }
+  
+  .image-preview img {
+    max-width: 100%;
+    display: block;
+    border-radius: 6px;
+  }
+  
+  .tip {
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #0369a1;
+  }
+  
+  .status-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+  }
+  
+  /* Success overlay */
+  .success-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(34, 197, 94, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  .success-message {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    animation: slideUp 0.4s ease-out;
+  }
+  
+  .success-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+  
+  .success-text {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #059669;
+    margin-bottom: 0.5rem;
+  }
+  
+  .success-subtext {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideUp {
+    from { 
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>
+
+<div class="container">
+  <div class="header">
+    <h1>Clip to Notion++</h1>
+  </div>
+
+  <!-- Tags moved to top -->
+  <div class="row">
+    <label for="tagsInput">Tags <span class="kbd">(Tab to focus, ↓/↑, Enter/Space to select, Esc to close)</span></label>
+
+    <!-- Combobox wrapper -->
+    <div class="combo"
+         id="tagsCombo"
+         role="combobox"
+         aria-haspopup="listbox"
+         aria-expanded="false"
+         aria-controls="tagsListbox">
+      <!-- Selected chips appear before the input -->
+      <div id="tagsChips" class="chips"></div>
+      <input id="tagsInput" type="text" aria-autocomplete="list" aria-activedescendant="" aria-controls="tagsListbox" autocomplete="off" placeholder="Type to search tags..." />
+      <ul id="tagsListbox" role="listbox" hidden></ul>
+    </div>
+    <div id="tagsHelp" class="kbd" aria-hidden="true" style="margin-top: 0.5rem;">Type to filter tags</div>
+  </div>
+
+    <div class="row">
+      <div class="checkbox-container">
+        <input type="checkbox" id="syncCheck" checked />
+        <span>Sync</span>
+      </div>
+      <div class="checkbox-container">
+        <input type="checkbox" id="closeTabCheck" checked />
+        <span>Close tab after saving</span>
+      </div>
+    </div>
+
+  <div class="row">
+    <label for="title">Title</label>
+    <input id="title" type="text" placeholder="Enter title..." />
+  </div>
+
+  <div class="row">
+    <label for="notes">Notes (tweet text auto‑fills on X)</label>
+    <textarea id="notes" rows="4" placeholder="Enter notes..."></textarea>
+  </div>
+
+  <div class="row">
+    </div>
+
+  <div class="row">
+    <label>Image preview</label>
+    <div id="imgPreview" style="display:none;" class="image-preview">
+      <img id="previewImg" alt="Selected image preview" />
+    </div>
+    <div id="noImg" class="kbd">No image detected.</div>
+    <div class="tip">
+      💡 Tip: On X, open a tweet with an image to automatically include it.
+    </div>
+  </div>
+
+  <div class="status-row">
+    <button id="saveBtn">Save (Ctrl/Cmd+Enter)</button>
+    <span id="status" role="status" aria-live="polite"></span>
+  </div>
+</div>
+
+<!-- Success overlay -->
+<div id="successOverlay" class="success-overlay" style="display: none;">
+  <div class="success-message">
+    <div class="success-icon">✅</div>
+    <div class="success-text">Tweet saved to Notion!</div>
+    <div class="success-subtext">Closing in 0.5 seconds...</div>
+  </div>
+</div>
+
+<script type="module" src="popup.js"></script>
