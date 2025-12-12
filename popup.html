@@ -29,7 +29,7 @@
     font-size: 0.875rem;
   }
   
-  input[type=text], textarea { 
+  input[type=text], input[type="datetime-local"], textarea { 
     width: 100%; 
     padding: 0.75rem; 
     box-sizing: border-box; 
@@ -40,7 +40,7 @@
     background: #f9fafb;
   }
   
-  input[type=text]:focus, textarea:focus { 
+  input[type=text]:focus, input[type="datetime-local"]:focus, textarea:focus { 
     outline: none;
     border-color: #3b82f6;
     background: white;
@@ -345,6 +345,12 @@
   <div class="row">
     <label for="title">Title</label>
     <input id="title" type="text" placeholder="Enter title..." />
+  </div>
+
+  <div class="row">
+    <label for="publishedDate">Published</label>
+    <input id="publishedDate" type="datetime-local" />
+    <div class="kbd" style="margin-top: 0.5rem;">Auto-fills on X (local time)</div>
   </div>
 
   <div class="row">

@@ -6,6 +6,29 @@ let allTags = [];        // [{id,name,color}]
 let filteredTags = [];
 let selectedTagIds = new Set();
 let activeIndex = -1;
+let prefill = {};
+
+function pad2(n) { return String(n).padStart(2, '0'); }
+function isoToDatetimeLocal(iso) {
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    // datetime-local expects local time without timezone, format: YYYY-MM-DDTHH:MM
+    return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  } catch { return ''; }
+}
+function datetimeLocalToISO(value) {
+  // value format: YYYY-MM-DDTHH:MM (local time)
+  try {
+    if (!value) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(value);
+    if (!m) return null;
+    const [_, yy, mm, dd, hh, mi] = m;
+    const d = new Date(Number(yy), Number(mm) - 1, Number(dd), Number(hh), Number(mi), 0, 0);
+    if (Number.isNaN(d.getTime())) return null;
+    return d.toISOString();
+  } catch { return null; }
+}
 
 // --- Load config & schema, prefill from X ---
 function cleanDatabaseId(id) {
@@ -27,8 +50,11 @@ function cleanDatabaseId(id) {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     const url = tab.url || '';
     const pre = await tryPrefillFromX(tab.id);
+    prefill = pre || {};
     $('#title').value = pre.title || (tab.title || '').trim();
     $('#notes').value = pre.text || '';
+    const dateEl = $('#publishedDate');
+    if (dateEl) dateEl.value = pre?.publishedDate ? isoToDatetimeLocal(pre.publishedDate) : '';
     if (pre.imageUrl) {
       const imgEl = document.getElementById('previewImg');
       const box = document.getElementById('imgPreview');
@@ -155,10 +181,14 @@ async function save() {
     props[tagsPropName] = { multi_select: selected };
   }
 
-  // Add published date if available
-  const pre = await tryPrefillFromX((await chrome.tabs.query({ active: true, currentWindow: true }))[0].id).catch(() => ({}));
-  if (pre?.publishedDate) {
-    props['Created'] = { date: { start: pre.publishedDate } };
+  // Add published date (UI field, auto-filled from X)
+  const pre = prefill || {};
+  const uiDate = $('#publishedDate')?.value || '';
+  const isoFromUi = datetimeLocalToISO(uiDate);
+  const iso = isoFromUi || pre?.publishedDate || null;
+  if (iso) {
+    // Map tweet-published time into the DB's "Date" property (distinct from Notion's created_time)
+    props['Published'] = { date: { start: iso } };
   }
 
   const body = { parent: { database_id: databaseId }, properties: props };
