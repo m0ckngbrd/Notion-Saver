@@ -1,0 +1,16 @@
+{
+  "name": "notion-saver-backfill-published",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Backfill missing Notion Published dates for saved tweets.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "backfill": "node backfill_published.js",
+    "dryrun": "DRY_RUN=1 node backfill_published.js"
+  }
+}
+
+

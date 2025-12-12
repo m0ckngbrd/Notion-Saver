@@ -187,7 +187,7 @@ async function save() {
   const isoFromUi = datetimeLocalToISO(uiDate);
   const iso = isoFromUi || pre?.publishedDate || null;
   if (iso) {
-    // Map tweet-published time into the DB's "Date" property (distinct from Notion's created_time)
+    // Map tweet-published time into the DB's "Published" property (distinct from Notion's created_time)
     props['Published'] = { date: { start: iso } };
   }
 
